@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import static java.nio.charset.StandardCharsets.UTF_8;
+import static java.nio.file.StandardOpenOption.APPEND;
 
 public class Network {
     private static final String SERVER_HOST = "localhost";
@@ -233,8 +234,11 @@ public class Network {
         try {
             if (file.exists()) {
                 history = Files.readAllLines(file.toPath(), UTF_8);
-                controller.addHistory(history);
-                file.delete();
+                int histSize = history.size();
+                int fromInd = histSize-HISTORY_SIZE;
+                if (fromInd<0) { fromInd = 0; }
+                controller.addHistory(history.subList(fromInd,histSize));
+                history.clear();
             } else {
                 history = new ArrayList<>();
             }
@@ -255,7 +259,7 @@ public class Network {
             createFile = file.createNewFile();
         }
         if (createFile) {
-            Files.write(file.toPath(), history, UTF_8);
+            Files.write(file.toPath(), history, UTF_8, APPEND);
         }
     }
 }
