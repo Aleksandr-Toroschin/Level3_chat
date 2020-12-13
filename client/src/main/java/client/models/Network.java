@@ -222,9 +222,6 @@ public class Network {
     }
 
     public void addHistory(String text) {
-        if (history.size() > HISTORY_SIZE) {
-            history.remove(0);
-        }
         history.add(text);
     }
 
