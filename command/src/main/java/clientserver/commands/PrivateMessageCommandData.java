@@ -4,6 +4,7 @@ import java.io.Serializable;
 
 public class PrivateMessageCommandData implements Serializable {
 
+    private static final long serialVersionUID = -8326L;
     private final String receiver;
     private final String message;
 

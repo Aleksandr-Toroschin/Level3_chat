@@ -61,7 +61,7 @@ public class ClientHandler {
                         this.nickName = myServer.getAuthService().getNickNameByLogin(login);
                         sendMessage(Command.authOkCommand(userName));
                         myServer.addUser(this);
-                        myServer.broadcastMessage(Command.messageInfoCommand("- "+userName+" присоединился", null), this);
+                        //myServer.broadcastMessage(Command.messageInfoCommand("- "+userName+" присоединился", null), this);
                         return;
                     }
                 } else {
@@ -146,9 +146,9 @@ public class ClientHandler {
 
     public void closeConnection(boolean notify) {
         myServer.personalMessage(Command.endCommand(), userName);
-        if (notify) {
-            myServer.broadcastMessage(Command.messageInfoCommand("вышел из чата", userName), this);
-        }
+//        if (notify) {
+//            myServer.broadcastMessage(Command.messageInfoCommand("вышел из чата", userName), this);
+//        }
         try {
             myServer.deleteUser(this);
             in.close();

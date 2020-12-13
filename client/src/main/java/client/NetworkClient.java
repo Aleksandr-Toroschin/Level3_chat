@@ -92,6 +92,7 @@ public class NetworkClient extends Application {
         loginStage.close();
         primaryStage.show();
         primaryStage.setTitle(network.getUserName());
+        network.readHistory(controller);
         network.waitMessageFromServer(controller);
     }
 }

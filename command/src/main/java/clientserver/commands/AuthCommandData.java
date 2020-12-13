@@ -3,6 +3,7 @@ package clientserver.commands;
 import java.io.Serializable;
 
 public class AuthCommandData implements Serializable {
+    private static final long serialVersionUID = -66L;
 
     private final String login;
     private final String password;

@@ -8,10 +8,16 @@ import javafx.application.Platform;
 
 import java.io.*;
 import java.net.Socket;
+import java.nio.file.Files;
+import java.util.ArrayList;
+import java.util.List;
+
+import static java.nio.charset.StandardCharsets.UTF_8;
 
 public class Network {
     private static final String SERVER_HOST = "localhost";
     private static final int SERVER_PORT = 8189;
+    private static final int HISTORY_SIZE = 200;
 
     private final String serverHost;
     private final int serverPort;
@@ -28,6 +34,9 @@ public class Network {
 
     private boolean isAction;
 
+    private List<String> history;
+    private String historyFile;
+
     public Network() {
         this(SERVER_HOST, SERVER_PORT);
     }
@@ -37,6 +46,7 @@ public class Network {
         this.serverPort = serverPort;
         isAction = false;
         activeChat = true;
+        history = new ArrayList<>();
     }
 
     public ObjectInputStream getDataInputStream() {
@@ -68,6 +78,11 @@ public class Network {
             } catch (IOException e) {
                 e.printStackTrace();
             }
+        }
+        try {
+            saveHistory();
+        } catch (IOException e) {
+            e.printStackTrace();
         }
         System.exit(0);
     }
@@ -108,6 +123,7 @@ public class Network {
                         case CHANGE_LOGIN_OK: {
                             ChangeLoginOKCommandData data = (ChangeLoginOKCommandData) command.getData();
                             login = data.getNewLogin();
+                            setHistoryFile(login);
                             Platform.runLater(() -> NetworkClient.showAlert("Логин изменен", data.getNewLogin()));
                             break;
                         }
@@ -134,10 +150,13 @@ public class Network {
                     e.printStackTrace();
                 }
             }
-//            System.exit(0);
         });
         thread.setDaemon(true);
         thread.start();
+    }
+
+    private void setHistoryFile(String login) {
+        historyFile = "history/history_" + login + ".txt";
     }
 
     public String sendAuthCommand(String login, String pw) {
@@ -153,6 +172,7 @@ public class Network {
                     AuthOkCommandData data = (AuthOkCommandData) command.getData();
                     this.userName = data.getUsername();
                     this.login = login;
+                    setHistoryFile(login);
                     return null;
                 }
                 case AUTH_ERROR:
@@ -185,13 +205,6 @@ public class Network {
     private Command readCommand() {
         try {
             return (Command) dataInputStream.readObject();
-//            Object o = dataInputStream.readObject();
-//
-//            if (o instanceof Command) {
-//                return (Command) o;
-//            } else {
-//                System.err.println("Получен неизвестный объект");
-//            }
         } catch (ClassNotFoundException | IOException e) {
             System.err.println("Не удалось получить объект");
             e.printStackTrace();
@@ -205,5 +218,44 @@ public class Network {
 
     public void sendChangeLogin(String newLogin) throws IOException {
         dataOutputStream.writeObject(Command.changeLoginCommand(login, newLogin));
+    }
+
+    public void addHistory(String text) {
+        if (history.size() > HISTORY_SIZE) {
+            history.remove(0);
+        }
+        history.add(text);
+    }
+
+    public void readHistory(Controller controller) {
+        // чтение из файла
+        File file = new File(historyFile);
+        try {
+            if (file.exists()) {
+                history = Files.readAllLines(file.toPath(), UTF_8);
+                controller.addHistory(history);
+                file.delete();
+            } else {
+                history = new ArrayList<>();
+            }
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+    }
+
+    public void saveHistory() throws IOException {
+        // запись в файл
+        File file = new File(historyFile);
+        boolean createFile = true;
+        if (!file.exists()) {
+            File dir = new File(file.getParent());
+            if (!dir.exists()) {
+                dir.mkdirs();
+            }
+            createFile = file.createNewFile();
+        }
+        if (createFile) {
+            Files.write(file.toPath(), history, UTF_8);
+        }
     }
 }

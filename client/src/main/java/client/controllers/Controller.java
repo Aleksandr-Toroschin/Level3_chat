@@ -3,7 +3,6 @@ package client.controllers;
 import client.Contact;
 import client.NetworkClient;
 import client.models.Network;
-import clientserver.Command;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.fxml.FXML;
@@ -54,7 +53,7 @@ public class Controller {
             cell.textProperty().bind(cell.itemProperty());
             cell.addEventFilter(MouseEvent.MOUSE_PRESSED, event -> {
                 usersList.requestFocus();
-                if (! cell.isEmpty()) {
+                if (!cell.isEmpty()) {
                     int index = cell.getIndex();
                     if (selectionModel.getSelectedIndices().contains(index)) {
                         selectionModel.clearSelection(index);
@@ -66,7 +65,7 @@ public class Controller {
                     event.consume();
                 }
             });
-            return cell ;
+            return cell;
         });
     }
 
@@ -86,7 +85,7 @@ public class Controller {
                 }
             } catch (IOException e) {
                 e.printStackTrace();
-                NetworkClient.showAlert("Не удалось отправить сообщение",e.getMessage());
+                NetworkClient.showAlert("Не удалось отправить сообщение", e.getMessage());
             }
         }
     }
@@ -94,10 +93,22 @@ public class Controller {
     @FXML
     public void addTextToList(String text) {
         String timeText = DateFormat.getInstance().format(new Date());
-        messagesField.appendText(timeText);
-        messagesField.appendText(System.lineSeparator());
+        addStringToList(timeText);
+        addStringToList(text);
+        network.addHistory(timeText);
+        network.addHistory(text);
+    }
+
+    @FXML
+    public void addStringToList(String text) {
         messagesField.appendText(text);
         messagesField.appendText(System.lineSeparator());
+    }
+
+    public void addHistory(List<String> history) {
+        for (String s : history) {
+            addStringToList(s);
+        }
     }
 
     @FXML
@@ -114,12 +125,7 @@ public class Controller {
             loader.setLocation(NetworkClient.class.getResource(aboutWindow));
             AnchorPane page = loader.load();
 
-            Stage aboutStage = new Stage();
-            aboutStage.setTitle("О программе");
-            aboutStage.initModality(Modality.WINDOW_MODAL);
-            //aboutStage.initOwner();
-            Scene scene = new Scene(page);
-            aboutStage.setScene(scene);
+            Stage aboutStage = getStage(page, "О программе");
 
             AboutController controller = loader.getController();
             controller.setAboutStage(aboutStage);
@@ -152,12 +158,7 @@ public class Controller {
             loaderL.setLocation(NetworkClient.class.getResource(changeLoginWindow));
             AnchorPane page = loaderL.load();
 
-            Stage chlStage = new Stage();
-            chlStage.setTitle("Изменение логина");
-            chlStage.initModality(Modality.WINDOW_MODAL);
-//            chlStage.initOwner();
-            Scene scene = new Scene(page);
-            chlStage.setScene(scene);
+            Stage chlStage = getStage(page, "Изменение логина");
 
             ChangeLoginController controller = loaderL.getController();
             controller.setStage(chlStage);
@@ -167,5 +168,15 @@ public class Controller {
         } catch (IOException e) {
             e.printStackTrace();
         }
+    }
+
+    private Stage getStage(AnchorPane page, String s) {
+        Stage chlStage = new Stage();
+        chlStage.setTitle(s);
+        chlStage.initModality(Modality.WINDOW_MODAL);
+//            chlStage.initOwner();
+        Scene scene = new Scene(page);
+        chlStage.setScene(scene);
+        return chlStage;
     }
 }
