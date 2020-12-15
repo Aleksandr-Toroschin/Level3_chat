@@ -24,11 +24,11 @@ public class ClientHandler {
         isAction = false;
     }
 
-    public void handle() throws IOException {
+    public Thread handle() throws IOException {
         in = new ObjectInputStream(clientSocket.getInputStream());
         out = new ObjectOutputStream(clientSocket.getOutputStream());
 
-        new Thread(() -> {
+        return new Thread(() -> {
             try {
                 TaskTimeout task = new TaskTimeout(this);
                 Timer timer = new Timer();
@@ -38,7 +38,7 @@ public class ClientHandler {
             } catch (IOException e) {
                 e.printStackTrace();
             }
-        }).start();
+        });
     }
 
     private void authentication() throws IOException {

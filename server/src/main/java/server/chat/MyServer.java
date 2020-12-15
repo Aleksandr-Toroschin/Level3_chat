@@ -10,16 +10,20 @@ import java.net.Socket;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Scanner;
+import java.util.concurrent.ExecutorService;
+import java.util.concurrent.Executors;
 
 public class MyServer {
     private final ServerSocket serverSocket;
     private final BaseAuthService authService;
     private final List<ClientHandler> clientHandlers = new ArrayList<>();
+    private ExecutorService executor;
 
 
     public MyServer(int port) throws IOException {
         this.serverSocket = new ServerSocket(port);
         this.authService = new BaseAuthService();
+        this.executor = Executors.newFixedThreadPool(100);
     }
 
     public void start() throws IOException {
@@ -34,6 +38,7 @@ public class MyServer {
             System.out.println("Не удалось создать новое подключение");
             e.printStackTrace();
         } finally {
+            executor.shutdownNow();
             authService.close();
             serverSocket.close();
         }
@@ -64,7 +69,7 @@ public class MyServer {
 
     private void processClientConnection(Socket clientSocket) throws IOException {
         ClientHandler clientHandler = new ClientHandler(this, clientSocket);
-        clientHandler.handle();
+        executor.execute(clientHandler.handle());
     }
 
     public BaseAuthService getAuthService() {
