@@ -20,4 +20,12 @@ public class PublicMessageCommandData implements Serializable {
     public String getSender() {
         return sender;
     }
+
+    @Override
+    public String toString() {
+        return "PublicMessageCommandData{" +
+                "sender='" + sender + '\'' +
+                ", message='" + message + '\'' +
+                '}';
+    }
 }

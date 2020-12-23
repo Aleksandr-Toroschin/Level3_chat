@@ -20,4 +20,12 @@ public class MessageInfoCommandData implements Serializable {
     public String getSender() {
         return sender;
     }
+
+    @Override
+    public String toString() {
+        return "MessageInfoCommandData{" +
+                "message='" + message + '\'' +
+                ", sender='" + sender + '\'' +
+                '}';
+    }
 }

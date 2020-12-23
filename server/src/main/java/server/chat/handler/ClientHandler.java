@@ -8,6 +8,8 @@ import server.chat.MyServer;
 import java.io.*;
 import java.net.Socket;
 import java.util.Timer;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class ClientHandler {
     private final MyServer myServer;
@@ -17,6 +19,7 @@ public class ClientHandler {
     private String userName;
     private String nickName;
     private boolean isAction;
+    private final Logger logger = Logger.getLogger(ClientHandler.class.getName());;
 
     public ClientHandler(MyServer myServer, Socket clientSocket) {
         this.myServer = myServer;
@@ -61,14 +64,17 @@ public class ClientHandler {
                         this.nickName = myServer.getAuthService().getNickNameByLogin(login);
                         sendMessage(Command.authOkCommand(userName));
                         myServer.addUser(this);
+//                        logger.log(Level.FINE, userName + " присоединился");
                         //myServer.broadcastMessage(Command.messageInfoCommand("- "+userName+" присоединился", null), this);
                         return;
                     }
                 } else {
                     sendMessage(Command.authErrorCommand("Неверный логин или пароль"));
+                    logger.log(Level.FINE, "Введен неверный логин или пароль");
                 }
             } else {
                 sendMessage(Command.authErrorCommand("Ошибка авторизации"));
+                logger.log(Level.FINE, "Ошибка авторизации");
             }
         }
     }
@@ -79,11 +85,17 @@ public class ClientHandler {
             if (o instanceof Command) {
                 return (Command) o;
             } else {
-                System.err.println("Получен неизвестный объект");
+//                System.err.println("Получен неизвестный объект");
+                logger.log(Level.INFO, "Получен неизвестный объект "+o.toString());
             }
         } catch (ClassNotFoundException | IOException e) {
-            System.err.println("Не удалось получить объект");
+//            System.err.println("Не удалось получить объект");
             e.printStackTrace();
+            logger.log(Level.INFO, "Не удалось получить объект", e);
+            if (clientSocket.isConnected()) {
+                logger.log(Level.WARNING, "clientSocket is closed");
+                closeConnection(false);
+            }
         }
         return null;
     }
@@ -128,16 +140,19 @@ public class ClientHandler {
                     if (myServer.getAuthService().changeLogin(login,loginNew)) {
                         // логин изменен успешно
                         sendMessage(Command.changeLoginOkCommand(loginNew));
-                        System.out.println("Изменен логин клиента. Старый:"+login+" Новый: "+loginNew);
+                        logger.log(Level.INFO, "Изменен логин клиента. Старый:"+login+" Новый: "+loginNew);
+//                        System.out.println("Изменен логин клиента. Старый:"+login+" Новый: "+loginNew);
                     } else {
                         sendMessage(Command.changeLoginErrCommand("Не удалось изменить логин"));
-                        System.out.println("Не удалось изменить логин клиента. с "+login+" на: "+loginNew);
+                        logger.log(Level.INFO, "Не удалось изменить логин клиента. с "+login+" на: "+loginNew);
+//                        System.out.println("Не удалось изменить логин клиента. с "+login+" на: "+loginNew);
                     }
                     break;
                 }
                 default: {
                     String errMessage = "Неизвестный тип команды "+command.getType();
-                    System.err.println(errMessage);
+                    logger.log(Level.INFO, "Неизвестный тип команды "+command.getType());
+//                    System.err.println(errMessage);
                     sendMessage(Command.errorCommand(errMessage));
                 }
             }
@@ -155,8 +170,9 @@ public class ClientHandler {
             out.close();
             clientSocket.close();
         } catch (IOException e) {
-            System.out.println("Соединение ");
+//            System.out.println("Соединение ");
             e.printStackTrace();
+            logger.log(Level.WARNING, "Ошибка при закрытии соединения", e);
         }
     }
 

@@ -1,6 +1,8 @@
 package server.chat.handler;
 
 import java.util.TimerTask;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class TaskTimeout extends TimerTask {
     private ClientHandler handler;
@@ -13,7 +15,9 @@ public class TaskTimeout extends TimerTask {
     public void run() {
         if (!handler.isAction()) {
             handler.closeConnection(false);
-            System.out.println("Долгое бездействие, соединение разорвано");
+            Logger logger = Logger.getGlobal();
+            logger.log(Level.INFO, "Долгое бездействие, соединение разорвано");
+//            System.out.println("Долгое бездействие, соединение разорвано");
         }
     }
 }

@@ -12,32 +12,37 @@ import java.util.List;
 import java.util.Scanner;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class MyServer {
     private final ServerSocket serverSocket;
     private final BaseAuthService authService;
     private final List<ClientHandler> clientHandlers = new ArrayList<>();
-    private ExecutorService executor;
+    private final ExecutorService executor;
+    private final Logger logger = Logger.getLogger(MyServer.class.getName());
 
 
     public MyServer(int port) throws IOException {
         this.serverSocket = new ServerSocket(port);
         this.authService = new BaseAuthService();
-        this.executor = Executors.newFixedThreadPool(100);
+        this.executor = Executors.newCachedThreadPool();
     }
 
     public void start() throws IOException {
-        System.out.println("Сервер запущен");
-        //consoleRead();
+        logger.log(Level.INFO, "Сервер запущен");
+//        consoleRead();
 
         try {
             while (true) {
                 waitAndProcessNewClientConnection();
             }
         } catch (IOException e) {
-            System.out.println("Не удалось создать новое подключение");
+            logger.log(Level.WARNING, "Не удалось создать новое подключение");
+//            System.out.println("Не удалось создать новое подключение");
             e.printStackTrace();
         } finally {
+            logger.log(Level.INFO, "Сервер остановлен");
             executor.shutdownNow();
             authService.close();
             serverSocket.close();
@@ -51,6 +56,7 @@ public class MyServer {
                 if (scanner.hasNext()) {
                     String message = scanner.nextLine();
                     if (message.equals("/exit")) {
+                        logger.log(Level.INFO, "Сервер остановлен по команде exit");
                         break;
                     }
                     broadcastMessage(Command.messageInfoCommand(message, "Server"), null);
@@ -63,7 +69,8 @@ public class MyServer {
 
     private void waitAndProcessNewClientConnection() throws IOException {
         Socket clientSocket = serverSocket.accept();
-        System.out.println("Соединение установлено. Ожидаем авторизации...");
+//        System.out.println("Соединение установлено. Ожидаем авторизации...");
+        logger.log(Level.FINE, "Соединение установлено. Ожидаем авторизации...");
         processClientConnection(clientSocket);
     }
 
@@ -89,7 +96,8 @@ public class MyServer {
         clientHandlers.add(clientHandler);
         List<String> usernames = getAllUsernames();
         broadcastMessage(Command.updateUsersListCommand(usernames),null);
-        System.out.println("Пользователь " + clientHandler.getUserName() + " успешно подключен");
+        logger.log(Level.FINE, "Пользователь " + clientHandler.getUserName() + " успешно подключен");
+//        System.out.println("Пользователь " + clientHandler.getUserName() + " успешно подключен");
     }
 
     private List<String> getAllUsernames() {
@@ -104,7 +112,8 @@ public class MyServer {
         clientHandlers.remove(clientHandler);
         List<String> usernames = getAllUsernames();
         broadcastMessage(Command.updateUsersListCommand(usernames),null);
-        System.out.println("Пользователь " + clientHandler.getUserName() + " вышел из чата");
+        logger.log(Level.FINE, "Пользователь " + clientHandler.getUserName() + " вышел из чата");
+//        System.out.println("Пользователь " + clientHandler.getUserName() + " вышел из чата");
     }
 
     public synchronized void broadcastMessage(Command command, ClientHandler sender) {
@@ -113,6 +122,7 @@ public class MyServer {
                 try {
                     clientHandler.sendMessage(command);
                 } catch (IOException e) {
+                    logger.log(Level.WARNING, "Не удалось разослать сообщение "+command.getData().toString());
                     e.printStackTrace();
                 }
             }
@@ -126,6 +136,7 @@ public class MyServer {
                     clientHandler.sendMessage(command);
                     return;
                 } catch (IOException e) {
+                    logger.log(Level.WARNING, "Не удалось отправить личное сообщение "+command.getData().toString());
                     e.printStackTrace();
                 }
             }

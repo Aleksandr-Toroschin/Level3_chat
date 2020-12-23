@@ -20,4 +20,12 @@ public class PrivateMessageCommandData implements Serializable {
     public String getMessage() {
         return message;
     }
+
+    @Override
+    public String toString() {
+        return "PrivateMessageCommandData{" +
+                "receiver='" + receiver + '\'' +
+                ", message='" + message + '\'' +
+                '}';
+    }
 }

@@ -1,16 +1,20 @@
 package server.chat.auth;
 
 import java.sql.*;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
 public class DataBaseService {
 
     private Connection connection;
     private Statement statement;
+    private final Logger logger = Logger.getLogger(DataBaseService.class.getName());
 
     public DataBaseService() {
         try {
             connect();
         } catch (Exception e) {
+            logger.log(Level.SEVERE, "Не удалось подключиться к базе данных", e);
             e.printStackTrace();
         }
     }
