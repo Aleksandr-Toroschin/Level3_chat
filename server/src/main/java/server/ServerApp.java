@@ -12,7 +12,7 @@ public class ServerApp {
     private static Logger logger = Logger.getLogger("");
 
     public static void main(String[] args) {
-        logger.setLevel(Level.INFO);
+//        logger.setLevel(Level.INFO);
         try {
             LogManager manager = LogManager.getLogManager();
             manager.readConfiguration(new FileInputStream("log/logging.properties"));

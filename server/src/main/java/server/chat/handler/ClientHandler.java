@@ -48,7 +48,7 @@ public class ClientHandler {
         while (true) {
             Command command = readCommand();
             if (command == null) {
-                continue;
+                break;
             }
             if (command.getType() == CommandType.AUTH) {
                 isAction = true;
@@ -92,10 +92,6 @@ public class ClientHandler {
 //            System.err.println("Не удалось получить объект");
             e.printStackTrace();
             logger.log(Level.INFO, "Не удалось получить объект", e);
-            if (clientSocket.isConnected()) {
-                logger.log(Level.WARNING, "clientSocket is closed");
-                closeConnection(false);
-            }
         }
         return null;
     }
@@ -112,7 +108,7 @@ public class ClientHandler {
         while (true) {
             Command command = readCommand();
             if (command==null) {
-                continue;
+                break;
             }
             switch (command.getType()) {
                 case PRIVATE_MESSAGE: {

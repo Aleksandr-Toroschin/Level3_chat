@@ -15,7 +15,7 @@ public class TaskTimeout extends TimerTask {
     public void run() {
         if (!handler.isAction()) {
             handler.closeConnection(false);
-            Logger logger = Logger.getGlobal();
+            Logger logger = Logger.getLogger(TaskTimeout.class.getName());
             logger.log(Level.INFO, "Долгое бездействие, соединение разорвано");
 //            System.out.println("Долгое бездействие, соединение разорвано");
         }
