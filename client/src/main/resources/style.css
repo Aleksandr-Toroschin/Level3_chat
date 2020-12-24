@@ -1,0 +1,31 @@
+.btnSend {
+    -fx-border-radius: 5;
+    -fx-border-width: 2;
+    -fx-border-color: #5f8ea0;
+    -fx-background-color: #fffae0;
+    -fx-background-radius: 5;
+    -fx-text-fill: darkblue;
+}
+
+.input-field {
+    -fx-border-radius: 5;
+    -fx-background-radius: 5;
+    -fx-text-fill: #393939;
+    -fx-font-size: 14;
+}
+
+.text-field {
+    -fx-padding: 10;
+}
+
+.text-name-app {
+    -fx-font-size: 16;
+    -fx-font-family: Arial;
+    -fx-text-fill: darkblue;
+}
+
+.text-des-app {
+    -fx-font-size: 13;
+    -fx-font-family: Arial;
+    -fx-text-fill: darkblue;
+}
